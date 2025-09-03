@@ -2,11 +2,17 @@ package metrics
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/workflow"
 )
+
+type Request struct {
+	readFile           bool
+	scheduledTimeNanos int64
+}
 
 func Workflow(ctx workflow.Context) error {
 	ao := workflow.ActivityOptions{
@@ -17,28 +23,53 @@ func Workflow(ctx workflow.Context) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("Metrics workflow started.")
 
-	scheduledTimeNanos := workflow.Now(ctx).UnixNano()
-	//_ = workflow.Sleep(ctx, 500*time.Millisecond)
-	err := workflow.ExecuteActivity(ctx, Activity, scheduledTimeNanos).Get(ctx, nil)
+	req := &Request{
+		readFile:           true,
+		scheduledTimeNanos: workflow.Now(ctx).UnixNano(),
+	}
+	err := workflow.ExecuteActivity(ctx, Activity, req).Get(ctx, nil)
 	if err != nil {
 		logger.Error("Activity failed.", "Error", err)
 		return err
+	}
+
+	for i := 0; i < 5; i++ {
+		req := &Request{
+			readFile:           true,
+			scheduledTimeNanos: workflow.Now(ctx).UnixNano(),
+		}
+		err := workflow.ExecuteActivity(ctx, Activity, req).Get(ctx, nil)
+		if err != nil {
+			logger.Error("Activity failed.", "Error", err)
+			return err
+		}
 	}
 
 	logger.Info("Metrics workflow completed.")
 	return nil
 }
 
-func Activity(ctx context.Context, scheduledTimeNanos int64) error {
+type Response struct {
+	Result string
+}
+
+func Activity(ctx context.Context, req Request) (Response, error) {
 	logger := activity.GetLogger(ctx)
 
 	var err error
 	metricsHandler := activity.GetMetricsHandler(ctx)
-	metricsHandler = recordActivityStart(metricsHandler, "metrics.Activity", scheduledTimeNanos)
+	metricsHandler = recordActivityStart(metricsHandler, "metrics.Activity", req.scheduledTimeNanos)
+
+	//var text string
+	//if req.readFile {
+	b, _ := os.ReadFile("./resources/100kb.txt")
+	text := string(b)
+
+	//}
 	startTime := time.Now()
 	defer func() { recordActivityEnd(metricsHandler, startTime, err) }()
 
 	time.Sleep(time.Second)
 	logger.Info("Metrics reported.")
-	return err
+	return Response{Result: text}, err
 }

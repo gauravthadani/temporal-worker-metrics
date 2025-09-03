@@ -29,10 +29,15 @@ func ParseClientOptionFlags(args []string) (client.Options, error) {
 	//	return client.Options{}, fmt.Errorf("-api-key or TEMPORAL_CLIENT_API_KEY env is required required")
 	//}
 
+	var opts client.ConnectionOptions
+	if *targetHost != "localhost:7233" {
+		opts = client.ConnectionOptions{TLS: &tls.Config{}}
+	}
+
 	return client.Options{
 		HostPort:          *targetHost,
 		Namespace:         *namespace,
-		ConnectionOptions: client.ConnectionOptions{TLS: &tls.Config{}},
+		ConnectionOptions: opts,
 		Credentials:       client.NewAPIKeyStaticCredentials(*apiKey),
 	}, nil
 }
