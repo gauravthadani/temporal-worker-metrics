@@ -1,4 +1,6 @@
-api_key
-temporal-certs/
+.terraform 
+.terraform.lock.hcl 
+terraform.tfstate 
+terraform.tfstate.backup
 .idea*
-.terraform
+temporal-certs/
