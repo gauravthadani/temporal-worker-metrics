@@ -1,17 +1,16 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: starter
 spec:
-  replicas: {{ .Values.starter.replicas }}
-  selector:
-    matchLabels:
-      app: starter
+  completions: {{ .Values.starter.completions | default 100 }}
+  parallelism: {{ .Values.starter.parallelism | default 100 }}
   template:
     metadata:
       labels:
         app: starter
     spec:
+      restartPolicy: OnFailure
       containers:
       - name: starter
         image: {{ .Values.starter.image }}:{{ .Values.starter.tag }}
