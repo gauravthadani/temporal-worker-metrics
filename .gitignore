@@ -1,3 +1,4 @@
 api_key
 temporal-certs/
 .idea*
+.terraform

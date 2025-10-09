@@ -62,3 +62,12 @@ go run worker/main.go -api-key your_api_key_here
 - `-target-host`: Temporal server host:port (default: localhost:7233)
 - `-namespace`: Temporal namespace (default: default)
 - `-api-key`: API key for authentication
+git subtree add --prefix=dashboards https://github.com/temporalio/dashboards.git master --squash
+
+
+Add new panel 
+```
+
+sum(rate(temporal_request_resource_exhausted_total{namespace=~"$namespace", namespace!="none"}[$__rate_interval])) by (namespace, operation, task_queue)
+
+```
