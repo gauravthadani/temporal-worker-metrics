@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal
+  template:
+    metadata:
+      labels:
+        app: temporal
+    spec:
+      containers:
+      - name: temporal
+        image: temporalio/temporal:latest
+        command: ["temporal"]
+        args: ["server", "start-dev", "--ip", "0.0.0.0"]
+        ports:
+        - containerPort: 7233
+          name: frontend
+        - containerPort: 8233
+          name: ui
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal
+spec:
+  selector:
+    app: temporal
+  ports:
+  - port: 7233
+    targetPort: 7233
+    name: frontend
+  - port: 8233
+    targetPort: 8233
+    name: ui
+    nodePort: 30233
+  type: NodePort

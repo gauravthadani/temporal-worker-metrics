@@ -1,0 +1,21 @@
+worker:
+  image: worker
+  tag: latest
+  replicas: 1
+  port: 9090
+
+starter:
+  image: starter
+  tag: latest
+  replicas: 1
+
+prometheus:
+  image: prom/prometheus
+  tag: latest
+  port: 9090
+
+grafana:
+  image: grafana/grafana
+  tag: latest
+  port: 3000
+  adminPassword: admin

@@ -1,0 +1,23 @@
+# Use the official Go image as the base image
+ARG GO_VERSION=1.25.0
+
+FROM golang:${GO_VERSION}-alpine AS builder
+ARG TARGET_OS=linux
+ARG TARGET_ARCH=amd64
+ARG BUILD_PATH=./prometheus/starter/main.go
+ARG BINARY_NAME=starter
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o ${BINARY_NAME} ${BUILD_PATH}
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+ARG BINARY_NAME
+WORKDIR /root/
+COPY --from=builder /app/${BINARY_NAME} .
+
+# Command to run the starter
+ENTRYPOINT ["./starter"]

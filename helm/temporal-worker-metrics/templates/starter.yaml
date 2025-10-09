@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starter
+spec:
+  replicas: {{ .Values.starter.replicas }}
+  selector:
+    matchLabels:
+      app: starter
+  template:
+    metadata:
+      labels:
+        app: starter
+    spec:
+      containers:
+      - name: starter
+        image: {{ .Values.starter.image }}:{{ .Values.starter.tag }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - "-target-host=temporal:7233"
