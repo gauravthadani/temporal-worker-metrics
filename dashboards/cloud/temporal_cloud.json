@@ -169,7 +169,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -242,7 +242,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -314,7 +314,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -387,7 +387,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -505,7 +505,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -610,7 +610,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -715,7 +715,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "exemplar": false,
           "expr": "sum(rate(temporal_cloud_v0_workflow_failed_count{temporal_namespace=~\"$temporal_namespace\"}[$__rate_interval])) by (temporal_namespace)",
@@ -818,7 +818,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -923,7 +923,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1028,7 +1028,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1146,7 +1146,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1251,7 +1251,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1356,7 +1356,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1461,7 +1461,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1580,7 +1580,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -1685,7 +1685,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1790,7 +1790,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -1895,7 +1895,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -2001,7 +2001,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -2106,7 +2106,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -2224,7 +2224,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -2329,7 +2329,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -2373,7 +2373,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "Should generally be under 200ms",
       "fieldConfig": {
@@ -2473,7 +2473,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum(rate(temporal_cloud_v0_service_latency_bucket{temporal_namespace=~\"$temporal_namespace\", operation=\"StartWorkflowExecution\"}[$__rate_interval])) by (temporal_namespace, operation, le))",
@@ -2576,7 +2576,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum(rate(temporal_cloud_v0_service_latency_bucket{temporal_namespace=~\"$temporal_namespace\", operation=\"SignalWorkflowExecution\"}[$__rate_interval])) by (temporal_namespace, operation, le))",
@@ -2603,7 +2603,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "Should generally be under 200ms",
       "fieldConfig": {
@@ -2701,7 +2701,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum(rate(temporal_cloud_v0_service_latency_bucket{temporal_namespace=~\"$temporal_namespace\", operation=\"SignalWithStartWorkflowExecution\"}[$__rate_interval])) by (temporal_namespace, operation, le))",
@@ -2817,7 +2817,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_EXTERNAL_METRICS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "sum(rate(temporal_cloud_v0_replication_lag_sum{temporal_namespace=~\"$temporal_namespace\"}[$__rate_interval])) by (temporal_namespace)\n/\nsum(rate(temporal_cloud_v0_replication_lag_count{temporal_namespace=~\"$temporal_namespace\"}[$__rate_interval])) by (temporal_namespace)",
@@ -2844,7 +2844,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "[Billable actions](https://docs.temporal.io/cloud/pricing#action) split across active/standby namespaces for multi region namespaces.",
       "fieldConfig": {
@@ -2963,7 +2963,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "Count of state transitions for each Namespace.",
       "fieldConfig": {
@@ -3066,7 +3066,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -3136,7 +3136,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -3206,7 +3206,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_EXTERNAL_METRICS}"
+        "uid": "${datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -3295,7 +3295,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_EXTERNAL_METRICS}"
+          "uid": "${datasource}"
         },
         "definition": "label_values(temporal_namespace)",
         "includeAll": false,

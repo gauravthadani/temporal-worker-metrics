@@ -5,6 +5,7 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./temporal-certs/api_key_metrics:/etc/prometheus/api_key_metrics
     networks:
       - monitoring
 
