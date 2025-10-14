@@ -1,7 +1,7 @@
 resource "grafana_data_source" "arbitrary-data" {
   type = "prometheus"
   name = "prometheus"
-  url = "http://prometheus:9090"
+  url  = var.prometheus_url
 }
 
 resource "grafana_data_source" "cloud-metrics" {

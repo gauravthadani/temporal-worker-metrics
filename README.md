@@ -62,12 +62,77 @@ go run worker/main.go -api-key your_api_key_here
 - `-target-host`: Temporal server host:port (default: localhost:7233)
 - `-namespace`: Temporal namespace (default: default)
 - `-api-key`: API key for authentication
-git subtree add --prefix=dashboards https://github.com/temporalio/dashboards.git master --squash
 
+## Terraform - Grafana Dashboard Provisioning
 
-Add new panel 
+The `auto/` directory contains Terraform configuration to automatically provision Grafana dashboards.
+
+### Environments
+
+Two environment configurations are available:
+
+1. **local.tfvars** - For docker-compose environment (Grafana on localhost:3000)
+2. **k8s.tfvars** - For Kubernetes environment (Grafana service discovery)
+
+### Usage
+
+For docker-compose:
+```bash
+cd auto
+terraform init
+terraform apply -var-file=local.tfvars
 ```
 
-sum(rate(temporal_request_resource_exhausted_total{namespace=~"$namespace", namespace!="none"}[$__rate_interval])) by (namespace, operation, task_queue)
+For Kubernetes:
+```bash
+cd auto
+terraform init
+terraform apply -var-file=k8s.tfvars
+```
 
+This will:
+- Create Prometheus data sources in Grafana
+- Provision all dashboards from the `dashboards/` directory
+- Create a "Temporal Dashboards" folder
+
+## Kubernetes Deployment
+
+### Setup Kind Cluster
+
+The `kind-config.yaml` configures port mappings for accessing services:
+
+```bash
+kind create cluster --config kind-config.yaml
+```
+
+This exposes:
+- **Grafana**: http://localhost:30030
+- **Prometheus**: http://localhost:30090
+- **Temporal**: http://localhost:30233
+
+### Deploy to Kind
+
+```bash
+# Build images
+cd golang
+docker build -f Dockerfile.worker -t worker:latest .
+docker build -f Dockerfile.starter -t starter:latest .
+
+# Load into Kind
+kind load docker-image worker:latest --name kind
+kind load docker-image starter:latest --name kind
+
+# Deploy with Helm
+helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics
+```
+
+The starter is configured as a Kubernetes Job that runs once with configurable parallelism (default: 1).
+
+## Dashboard Management
+
+Add dashboards by placing JSON files in the `dashboards/` directory. Terraform will automatically discover and provision them.
+
+Dashboard subtree:
+```bash
+git subtree add --prefix=dashboards https://github.com/temporalio/dashboards.git master --squash
 ```

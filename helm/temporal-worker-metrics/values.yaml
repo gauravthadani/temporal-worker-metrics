@@ -2,13 +2,13 @@ worker:
   image: worker
   tag: latest
   replicas: 1
-  port: 9090
+  port: 8079
 
 starter:
   image: starter
   tag: latest
-  completions: 100
-  parallelism: 100
+  completions: 1
+  parallelism: 1
 
 prometheus:
   image: prom/prometheus

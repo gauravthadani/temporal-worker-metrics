@@ -1,5 +1,6 @@
 locals {
-  #   my_script_content = file("${path.module}/../dashboards/sdk/temporal-go-java-sdks-tally.json")
+  grafana_url    = var.grafana_url
+  prometheus_url = var.prometheus_url
 
   search_directory = "${path.module}/../dashboards/"
   json_files       = fileset(local.search_directory, "**/*.json")

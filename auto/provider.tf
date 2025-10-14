@@ -9,6 +9,6 @@ terraform {
 
 provider "grafana" {
   # Configuration options
-  url  = "http://localhost:3000"
-  auth = "admin:admin"
+  url  = var.grafana_url
+  auth = var.grafana_auth
 }
