@@ -7,8 +7,8 @@ worker:
 starter:
   image: starter
   tag: latest
-  completions: 1
-  parallelism: 1
+  completions: 100
+  parallelism: 100
 
 prometheus:
   image: prom/prometheus
