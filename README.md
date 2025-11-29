@@ -128,6 +128,18 @@ helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics
 
 The starter is configured as a Kubernetes Job that runs once with configurable parallelism (default: 1).
 
+### Quick Redeploy Commands
+
+**Redeploy Starter (5 parallel jobs):**
+```bash
+kubectl delete job starter -n default 2>/dev/null; helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics --namespace default --set-string prometheus.apiKey="$(cat temporal-certs/api_key_metrics)" --set starter.enabled=true --set starter.completions=5 --set starter.parallelism=5
+```
+
+**Redeploy Worker:**
+```bash
+docker build -t worker:latest -f golang/Dockerfile.worker golang/ && kind load docker-image worker:latest && kubectl rollout restart deployment/worker -n default
+```
+
 ## Dashboard Management
 
 Add dashboards by placing JSON files in the `dashboards/` directory. Terraform will automatically discover and provision them.

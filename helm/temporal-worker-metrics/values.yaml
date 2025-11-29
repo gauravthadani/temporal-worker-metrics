@@ -5,6 +5,7 @@ worker:
   port: 8079
 
 starter:
+  enabled: false  # Set to true to launch starter jobs
   image: starter
   tag: latest
   completions: 100

@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"log"
 	"os"
 	"time"
+
+	"github.com/google/uuid"
 
 	"go.temporal.io/sdk/client"
 
@@ -24,7 +25,7 @@ func main() {
 	}
 	defer c.Close()
 
-	for range 1 {
+	for range 100 {
 		go func() {
 			startWF(c)
 		}()

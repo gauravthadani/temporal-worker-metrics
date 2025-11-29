@@ -3,9 +3,10 @@ package metrics
 import (
 	"context"
 	"fmt"
-	"go.temporal.io/sdk/temporal"
 	"os"
 	"time"
+
+	"go.temporal.io/sdk/temporal"
 
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/workflow"
@@ -92,6 +93,7 @@ func Activity(ctx context.Context, req Request) (Response, error) {
 	text := string(b)
 
 	startTime := time.Now()
+	time.Sleep(time.Second * 8)
 	defer func() { recordActivityEnd(metricsHandler, startTime, err) }()
 
 	logger.Info("Metrics reported.")

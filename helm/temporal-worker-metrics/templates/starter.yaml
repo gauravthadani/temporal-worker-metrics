@@ -1,3 +1,4 @@
+{{- if .Values.starter.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -5,6 +6,7 @@ metadata:
 spec:
   completions: {{ .Values.starter.completions | default 100 }}
   parallelism: {{ .Values.starter.parallelism | default 100 }}
+  backoffLimit: 50
   template:
     metadata:
       labels:
@@ -17,3 +19,4 @@ spec:
         imagePullPolicy: IfNotPresent
         args:
         - "-target-host=temporal:7233"
+{{- end }}
