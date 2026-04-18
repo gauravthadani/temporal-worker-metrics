@@ -4,3 +4,5 @@ terraform.tfstate
 terraform.tfstate.backup
 .idea*
 temporal-certs/
+api_key
+api_key_metrics

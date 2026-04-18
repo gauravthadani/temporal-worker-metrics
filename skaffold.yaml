@@ -1,0 +1,34 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: temporal-worker-metrics
+
+build:
+  local:
+    push: false
+  tagPolicy:
+    gitCommit:
+      variant: AbbrevCommitSha
+  artifacts:
+    - image: worker
+      context: golang
+      docker:
+        dockerfile: Dockerfile.worker
+    - image: starter
+      context: golang
+      docker:
+        dockerfile: Dockerfile.starter
+
+deploy:
+  helm:
+    releases:
+      - name: temporal-worker-metrics
+        chartPath: helm/temporal-worker-metrics
+        valuesFiles:
+          - helm/temporal-worker-metrics/values.yaml
+        setValueTemplates:
+          worker.image: "{{.IMAGE_REPO_worker}}"
+          worker.tag: "{{.IMAGE_TAG_worker}}"
+          starter.image: "{{.IMAGE_REPO_starter}}"
+          starter.tag: "{{.IMAGE_TAG_starter}}"
+

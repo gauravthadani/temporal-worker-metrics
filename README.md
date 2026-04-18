@@ -1,150 +1,96 @@
 # Temporal Worker Metrics
 
-This project demonstrates how to integrate Prometheus metrics with Temporal workflows and activities in Go.
+This project demonstrates how to run Temporal workers on Kubernetes with Prometheus metrics, Grafana dashboards, and automated versioned rollouts via the [temporal-worker-controller](https://github.com/temporalio/temporal-worker-controller).
 
 ## Overview
 
-The sample shows how to:
-- Set up Prometheus metrics collection for Temporal workers
-- Record activity execution metrics (latency, success/failure counts)
-- Export metrics via HTTP endpoint for Prometheus scraping
-- Track schedule-to-start latency for activities
+- Temporal Go worker with Prometheus metrics (tally/histogram)
+- Resource-based tuner + poller autoscaling
+- Worker versioning via `TemporalWorkerDeployment` (AllAtOnce rollout)
+- Prometheus scraping worker metrics + Temporal Cloud metrics
+- Grafana dashboards provisioned via Terraform
 
 ## Prerequisites
 
-1. Go 1.19+
-2. Running [Temporal service](https://github.com/temporalio/samples-go/tree/main/#how-to-use)
+- [Go 1.23+](https://go.dev)
+- [Docker](https://docs.docker.com/get-docker/)
+- [kind](https://kind.sigs.k8s.io/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Helm v3](https://helm.sh/)
+- [Skaffold](https://skaffold.dev/)
+- [Terraform](https://www.terraform.io/)
+- Temporal Cloud metrics API key in `temporal-certs/api_key_metrics`
 
 ## Quick Start
 
-1. **Start Temporal**
-
-   ```bash
-   temporal server start-dev
-   ```
-
-2. **Bring up services**
-
-   ```bash
-   docker compose up -d
-   ```
-
-3. **Start the worker with metrics collection:**
-
-   ```bash
-   go run worker/main.go
-   ```
-
-4. **Execute a workflow to generate metrics:**
-
-   ```bash
-   go run starter/main.go
-   ```
-
-5. **View metrics:**
-   - Prometheus endpoint: http://localhost:8079/metrics
-   - Metrics are scraped by Prometheus from this endpoint
-
-## Configuration
-
-### API Key Authentication
-Set your Temporal Cloud API key:
 ```bash
-export TEMPORAL_CLIENT_API_KEY=your_api_key_here
-```
-
-Or pass via command line:
-```bash
-go run worker/main.go -api-key your_api_key_here
-```
-
-### Command Line Options
-- `-target-host`: Temporal server host:port (default: localhost:7233)
-- `-namespace`: Temporal namespace (default: default)
-- `-api-key`: API key for authentication
-
-## Terraform - Grafana Dashboard Provisioning
-
-The `auto/` directory contains Terraform configuration to automatically provision Grafana dashboards.
-
-### Environments
-
-Two environment configurations are available:
-
-1. **local.tfvars** - For docker-compose environment (Grafana on localhost:3000)
-2. **k8s.tfvars** - For Kubernetes environment (Grafana service discovery)
-
-### Usage
-
-For docker-compose:
-```bash
-cd auto
-terraform init
-terraform apply -var-file=local.tfvars
-```
-
-For Kubernetes:
-```bash
-cd auto
-terraform init
-terraform apply -var-file=k8s.tfvars
+./bootstrap.sh
 ```
 
 This will:
-- Create Prometheus data sources in Grafana
-- Provision all dashboards from the `dashboards/` directory
-- Create a "Temporal Dashboards" folder
+1. Create a local kind cluster
+2. Create the Prometheus API key secret in k8s
+3. Build worker + starter images and deploy everything via Skaffold (including the temporal-worker-controller)
+4. Provision Grafana dashboards via Terraform
+5. Optionally launch workflow load
 
-## Kubernetes Deployment
-
-### Setup Kind Cluster
-
-The `kind-config.yaml` configures port mappings for accessing services:
-
-```bash
-kind create cluster --config kind-config.yaml
-```
-
-This exposes:
-- **Grafana**: http://localhost:30030
+Access:
+- **Grafana**: http://localhost:30030 (admin/admin)
 - **Prometheus**: http://localhost:30090
-- **Temporal**: http://localhost:30233
+- **Temporal UI**: http://localhost:30233
 
-### Deploy to Kind
+## Architecture
+
+```
+TemporalWorkerDeployment
+  └─ managed by temporal-worker-controller
+       └─ creates/manages Deployment pods (versioned)
+            └─ worker exposes :8079/metrics
+                 └─ scraped by Prometheus → Grafana
+```
+
+The worker reads `TEMPORAL_WORKER_BUILD_ID` and `TEMPORAL_DEPLOYMENT_NAME` injected by the controller and enables worker versioning automatically. When running locally without the controller these env vars are absent and versioning is skipped.
+
+## Development
+
+### Iterating with Skaffold
 
 ```bash
-# Build images
+# Build, push to kind, and deploy (one-shot)
+skaffold run
+
+# Continuous dev loop with file watching
+skaffold dev
+```
+
+### Launch workflow load
+
+```bash
+skaffold run --set-value starter.enabled=true
+```
+
+### Run worker locally (no k8s)
+
+```bash
 cd golang
-docker build -f Dockerfile.worker -t worker:latest .
-docker build -f Dockerfile.starter -t starter:latest .
-
-# Load into Kind
-kind load docker-image worker:latest --name kind
-kind load docker-image starter:latest --name kind
-
-# Deploy with Helm
-helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics
+go run prometheus/worker/main.go -target-host=localhost:7233
 ```
 
-The starter is configured as a Kubernetes Job that runs once with configurable parallelism (default: 1).
+## Terraform — Grafana Dashboards
 
-### Quick Redeploy Commands
-
-**Redeploy Starter (5 parallel jobs):**
 ```bash
-kubectl delete job starter -n default 2>/dev/null; helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics --namespace default --set-string prometheus.apiKey="$(cat temporal-certs/api_key_metrics)" --set starter.enabled=true --set starter.completions=5 --set starter.parallelism=5
+cd auto
+
+# local docker-compose
+terraform apply -var-file=local.tfvars
+
+# kind / k8s
+terraform apply -var-file=k8s.tfvars
 ```
 
-**Redeploy Worker:**
-```bash
-docker build -t worker:latest -f golang/Dockerfile.worker golang/ && kind load docker-image worker:latest && kubectl rollout restart deployment/worker -n default
-```
+## Dashboard subtree
 
-## Dashboard Management
-
-Add dashboards by placing JSON files in the `dashboards/` directory. Terraform will automatically discover and provision them.
-
-Dashboard subtree:
 ```bash
 git subtree add --prefix=dashboards https://github.com/temporalio/dashboards.git master --squash
+git subtree pull --prefix=dashboards https://github.com/temporalio/dashboards.git master --squash
 ```

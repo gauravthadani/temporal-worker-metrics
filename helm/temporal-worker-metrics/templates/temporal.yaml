@@ -16,7 +16,7 @@ spec:
       - name: temporal
         image: temporalio/temporal:latest
         command: ["temporal"]
-        args: ["server", "start-dev", "--ip", "0.0.0.0"]
+        args: ["server", "start-dev", "--ip", "0.0.0.0", "--db-filename", "/tmp/local"]
         ports:
         - containerPort: 7233
           name: frontend

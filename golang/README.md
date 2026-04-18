@@ -1,35 +1,28 @@
-# Temporal Worker Metrics
+# Temporal Worker Metrics — Go
 
-## Build Docker Images
+Go implementation of a Temporal worker with Prometheus metrics, resource-based tuning, and worker versioning support.
 
-### Worker
-
-To build the Docker image for the temporal worker:
+## Running locally
 
 ```bash
-docker build --tag=worker -f Dockerfile.worker ./
+# Start Temporal dev server
+temporal server start-dev
+
+# Run the worker
+go run prometheus/worker/main.go -target-host=localhost:7233
+
+# Start a workflow
+go run prometheus/starter/main.go -target-host=localhost:7233
 ```
 
-This will create a Docker image tagged as `worker` that contains the temporal worker application with metrics collection capabilities.
+Metrics are exposed at http://localhost:8079/metrics.
 
-Load it into kind:
+## Worker versioning
 
-```bash
-kind load docker-image worker:latest
-```
+When deployed via the [temporal-worker-controller](https://github.com/temporalio/temporal-worker-controller), the controller injects `TEMPORAL_WORKER_BUILD_ID` and `TEMPORAL_DEPLOYMENT_NAME` into the pod. The worker picks these up automatically and enables versioning. No code change needed when updating — just push a new image.
 
-### Starter
+When running locally without those env vars, versioning is skipped and the worker behaves as unversioned.
 
-To build the Docker image for the temporal starter:
+## Building Docker images
 
-```bash
-docker build --tag=starter -f Dockerfile.starter ./
-```
-
-This will create a Docker image tagged as `starter` that contains the temporal workflow starter application.
-
-Load it into kind:
-
-```bash
-kind load docker-image starter:latest
-```
+Images are built and loaded into kind automatically by Skaffold. Run `skaffold run` from the repo root.

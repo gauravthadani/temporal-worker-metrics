@@ -20,25 +20,41 @@ echo "📦 Creating kind cluster..."
 kind create cluster --config kind-config.yaml
 echo "✅ Kind cluster created"
 
-# Build Docker images
-echo "🔨 Building Docker images..."
-docker build -t worker:latest -f golang/Dockerfile.worker golang/
-docker build -t starter:latest -f golang/Dockerfile.starter golang/
-echo "✅ Docker images built"
+# Install cert-manager
+echo "🔐 Installing cert-manager..."
+helm install cert-manager oci://quay.io/jetstack/charts/cert-manager \
+    --version 1.20.2 \
+    --namespace cert-manager \
+    --create-namespace \
+    --set crds.enabled=true \
+    --wait
+echo "✅ cert-manager installed"
 
-# Load images into kind
-echo "📤 Loading images into kind cluster..."
-kind load docker-image worker:latest
-kind load docker-image starter:latest
-echo "✅ Images loaded into kind"
-
-# Deploy with Helm (without starters initially)
-echo "⚙️  Deploying with Helm..."
-helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics \
+# Install temporal-worker-controller
+echo "⚙️  Installing temporal-worker-controller..."
+helm install temporal-worker-controller-crds \
+    oci://docker.io/temporalio/temporal-worker-controller-crds \
+    --version 0.24.1 \
+    --namespace default
+helm install temporal-worker-controller \
+    oci://docker.io/temporalio/temporal-worker-controller \
+    --version 0.24.1 \
     --namespace default \
-    --set-string prometheus.apiKey="$API_KEY" \
-    --set starter.enabled=false
-echo "✅ Helm deployment complete"
+    --wait
+echo "✅ temporal-worker-controller installed"
+
+# Create Prometheus API key secret
+echo "🔑 Creating Prometheus API key secret..."
+kubectl create secret generic temporal-api-key \
+    --from-literal=api_key="$API_KEY" \
+    --namespace default \
+    --dry-run=client -o yaml | kubectl apply -f -
+echo "✅ Secret created"
+
+# Deploy app with Skaffold (builds images, deploys temporal-worker-metrics chart)
+echo "⚙️  Deploying with Skaffold..."
+skaffold run
+echo "✅ Skaffold deployment complete"
 
 # Wait for prometheus to be ready
 echo "⏳ Waiting for Prometheus to be ready..."
@@ -74,14 +90,11 @@ read -p "Launch starters? (y/n): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🚀 Launching starters..."
-    helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics \
-        --namespace default \
-        --set-string prometheus.apiKey="$API_KEY" \
-        --set starter.enabled=true
+    skaffold run --set-value starter.enabled=true
     echo "✅ Starters launched"
 else
     echo "⏸️  Starters not launched. You can manually start them later with:"
-    echo "   helm upgrade --install temporal-worker-metrics ./helm/temporal-worker-metrics --namespace default --set-string prometheus.apiKey=\"\$(cat temporal-certs/api_key_metrics)\" --set starter.enabled=true"
+    echo "   skaffold run --set-value starter.enabled=true"
 fi
 
 echo ""

@@ -25,6 +25,18 @@ func ParseClientOptionFlags(args []string) (client.Options, error) {
 	if *apiKey == "" {
 		*apiKey = os.Getenv("TEMPORAL_CLIENT_API_KEY")
 	}
+
+	// Fall back to env vars injected by temporal-worker-controller
+	if *targetHost == "localhost:7233" {
+		if envHost := os.Getenv("TEMPORAL_ADDRESS"); envHost != "" {
+			*targetHost = envHost
+		}
+	}
+	if *namespace == "default" {
+		if envNS := os.Getenv("TEMPORAL_NAMESPACE"); envNS != "" {
+			*namespace = envNS
+		}
+	}
 	//if *apiKey == "" {
 	//	return client.Options{}, fmt.Errorf("-api-key or TEMPORAL_CLIENT_API_KEY env is required required")
 	//}
@@ -38,10 +50,16 @@ func ParseClientOptionFlags(args []string) (client.Options, error) {
 		opts = client.ConnectionOptions{TLS: &tls.Config{}}
 	}
 
-	return client.Options{
+	clientOpts := client.Options{
 		HostPort:          *targetHost,
 		Namespace:         *namespace,
 		ConnectionOptions: opts,
-		Credentials:       client.NewAPIKeyStaticCredentials(*apiKey),
-	}, nil
+	}
+
+	// Only set credentials if API key is provided
+	if *apiKey != "" {
+		clientOpts.Credentials = client.NewAPIKeyStaticCredentials(*apiKey)
+	}
+
+	return clientOpts, nil
 }
