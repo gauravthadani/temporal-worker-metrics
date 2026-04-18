@@ -1,0 +1,4 @@
+image: worker
+tag: latest
+replicas: 1
+port: 8079

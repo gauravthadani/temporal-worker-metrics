@@ -1,0 +1,5 @@
+apiVersion: v2
+name: starter
+description: Starter jobs for temporal-worker-metrics
+type: application
+version: 0.1.0

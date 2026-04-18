@@ -6,3 +6,4 @@ terraform.tfstate.backup
 temporal-certs/
 api_key
 api_key_metrics
+charts/

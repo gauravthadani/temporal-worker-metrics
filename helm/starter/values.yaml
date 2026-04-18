@@ -1,0 +1,4 @@
+image: starter
+tag: latest
+completions: 2
+parallelism: 2

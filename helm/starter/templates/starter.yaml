@@ -1,11 +1,10 @@
-{{- if .Values.starter.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: starter
+  name: starter-{{ now | unixEpoch }}
 spec:
-  completions: {{ .Values.starter.completions | default 100 }}
-  parallelism: {{ .Values.starter.parallelism | default 100 }}
+  completions: {{ .Values.completions }}
+  parallelism: {{ .Values.parallelism }}
   backoffLimit: 50
   template:
     metadata:
@@ -15,8 +14,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: starter
-        image: {{ .Values.starter.image }}:{{ .Values.starter.tag }}
+        image: {{ .Values.image }}:{{ .Values.tag }}
         imagePullPolicy: IfNotPresent
         args:
         - "-target-host=temporal:7233"
-{{- end }}

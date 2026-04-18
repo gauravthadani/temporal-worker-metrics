@@ -14,21 +14,34 @@ build:
       context: golang
       docker:
         dockerfile: Dockerfile.worker
-    - image: starter
-      context: golang
-      docker:
-        dockerfile: Dockerfile.starter
 
 deploy:
   helm:
     releases:
-      - name: temporal-worker-metrics
-        chartPath: helm/temporal-worker-metrics
+      - name: worker
+        chartPath: helm/worker
         valuesFiles:
-          - helm/temporal-worker-metrics/values.yaml
+          - helm/worker/values.yaml
         setValueTemplates:
-          worker.image: "{{.IMAGE_REPO_worker}}"
-          worker.tag: "{{.IMAGE_TAG_worker}}"
-          starter.image: "{{.IMAGE_REPO_starter}}"
-          starter.tag: "{{.IMAGE_TAG_starter}}"
+          image: "{{.IMAGE_REPO_worker}}"
+          tag: "{{.IMAGE_TAG_worker}}"
+
+profiles:
+  - name: starters
+    build:
+      artifacts:
+        - image: starter
+          context: golang
+          docker:
+            dockerfile: Dockerfile.starter
+    deploy:
+      helm:
+        releases:
+          - name: starter
+            chartPath: helm/starter
+            valuesFiles:
+              - helm/starter/values.yaml
+            setValueTemplates:
+              image: "{{.IMAGE_REPO_starter}}"
+              tag: "{{.IMAGE_TAG_starter}}"
 
