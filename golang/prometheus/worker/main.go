@@ -13,7 +13,6 @@ import (
 	"go.temporal.io/sdk/client"
 	sdktally "go.temporal.io/sdk/contrib/tally"
 	"go.temporal.io/sdk/worker"
-	"go.temporal.io/sdk/workflow"
 )
 
 func main() {
@@ -35,14 +34,16 @@ func main() {
 	defer c.Close()
 
 	w := worker.New(c, "metrics", worker.Options{
-		DeploymentOptions: worker.DeploymentOptions{
-			UseVersioning: true,
-			Version: worker.WorkerDeploymentVersion{
-				DeploymentName: os.Getenv("TEMPORAL_DEPLOYMENT_NAME"),
-				BuildID:        os.Getenv("TEMPORAL_WORKER_BUILD_ID"),
-			},
-			DefaultVersioningBehavior: workflow.VersioningBehaviorPinned,
-		},
+		//MaxConcurrentWorkflowTaskExecutionSize: 2,
+		//MaxConcurrentActivityExecutionSize:     1,
+		//DeploymentOptions: worker.DeploymentOptions{
+		//	UseVersioning: true,
+		//	Version: worker.WorkerDeploymentVersion{
+		//		DeploymentName: os.Getenv("TEMPORAL_DEPLOYMENT_NAME"),
+		//		BuildID:        os.Getenv("TEMPORAL_WORKER_BUILD_ID"),
+		//	},
+		//	DefaultVersioningBehavior: workflow.VersioningBehaviorPinned,
+		//},
 	})
 
 	w.RegisterWorkflow(metrics.Workflow)

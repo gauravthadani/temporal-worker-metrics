@@ -17,4 +17,29 @@ spec:
         image: {{ .Values.image }}:{{ .Values.tag }}
         imagePullPolicy: IfNotPresent
         args:
-        - "-target-host=temporal:7233"
+        - "-target-host={{ if .Values.temporal.apiKey.enabled }}{{ .Values.temporal.apiKey.host }}{{ else }}{{ .Values.temporal.mtls.host }}{{ end }}"
+        - "-namespace={{ .Values.temporal.namespace }}"
+        {{- if .Values.temporal.mtls.enabled }}
+        - "-tls-cert-path=/etc/temporal/tls/client.pem"
+        - "-tls-key-path=/etc/temporal/tls/client.key"
+        {{- end }}
+        {{- if .Values.temporal.apiKey.enabled }}
+        env:
+        - name: TEMPORAL_CLIENT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.temporal.apiKey.secretName }}
+              key: {{ .Values.temporal.apiKey.secretKey }}
+        {{- end }}
+        {{- if .Values.temporal.mtls.enabled }}
+        volumeMounts:
+        - name: temporal-tls
+          mountPath: /etc/temporal/tls
+          readOnly: true
+        {{- end }}
+      {{- if .Values.temporal.mtls.enabled }}
+      volumes:
+      - name: temporal-tls
+        secret:
+          secretName: {{ .Values.temporal.mtls.secretName }}
+      {{- end }}

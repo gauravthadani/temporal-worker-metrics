@@ -3,17 +3,21 @@ set -e
 
 echo "🚀 Starting Temporal Worker Metrics Bootstrap"
 
-# Check if API key file exists
-API_KEY_FILE="temporal-certs/api_key_metrics"
-if [ ! -f "$API_KEY_FILE" ]; then
-    echo "❌ Error: API key file not found at $API_KEY_FILE"
-    echo "Please create the file with your Temporal Cloud API key"
-    exit 1
-fi
+# Check if API key files exist
+API_KEY_FILE="temporal-certs/api_key"
+API_KEY_FILE_METRICS="temporal-certs/api_key_metrics"
+for f in "$API_KEY_FILE" "$API_KEY_FILE_METRICS"; do
+    if [ ! -f "$f" ]; then
+        echo "❌ Error: API key file not found at $f"
+        exit 1
+    fi
+done
 
-# Read API key
+# Read API keys
 API_KEY=$(cat "$API_KEY_FILE")
 echo "✅ API key loaded from $API_KEY_FILE"
+API_KEY_METRICS=$(cat "$API_KEY_FILE_METRICS")
+echo "✅ API key loaded from $API_KEY_FILE_METRICS"
 
 # Start local pull-through registry (persists across kind restarts)
 if ! docker inspect kind-registry &>/dev/null; then
@@ -35,38 +39,41 @@ echo "✅ Kind cluster created"
 docker network connect kind kind-registry 2>/dev/null || true
 echo "✅ Registry connected to kind network"
 
-# Pre-pull helm charts if not cached
-mkdir -p charts
-[ -f charts/cert-manager-1.20.2.tgz ] || \
-    helm pull oci://quay.io/jetstack/charts/cert-manager --version 1.20.2 -d charts/
-[ -f charts/temporal-worker-controller-crds-0.24.1.tgz ] || \
-    helm pull oci://docker.io/temporalio/temporal-worker-controller-crds --version 0.24.1 -d charts/
-
-# Install cert-manager
-echo "🔐 Installing cert-manager..."
-helm install cert-manager charts/cert-manager-1.20.2.tgz \
-    --namespace cert-manager \
+# Install KEDA
+echo "⚙️  Installing KEDA..."
+[ -f charts/keda-2.19.0.tgz ] || helm pull kedacore/keda --version 2.19.0 -d charts/
+helm install keda charts/keda-2.19.0.tgz \
+    --namespace keda \
     --create-namespace \
-    --set crds.enabled=true \
     --wait
-echo "✅ cert-manager installed"
+echo "✅ KEDA installed"
 
-# Install temporal-worker-controller CRDs
-echo "⚙️  Installing temporal-worker-controller CRDs..."
-helm install temporal-worker-controller-crds \
-    charts/temporal-worker-controller-crds-0.24.1.tgz \
-    --namespace default
-echo "✅ temporal-worker-controller CRDs installed"
-
-# Create Prometheus API key secret
-echo "🔑 Creating Prometheus API key secret..."
+# Create API key secret
+echo "🔑 Creating Temporal API key secret..."
 kubectl create secret generic temporal-api-key \
     --from-literal=api_key="$API_KEY" \
     --namespace default \
     --dry-run=client -o yaml | kubectl apply -f -
 echo "✅ Secret created"
 
-# Install infra chart (temporal, prometheus, grafana, temporal-worker-controller)
+# Create Prometheus API key secret
+echo "🔑 Creating Prometheus API key secret..."
+kubectl create secret generic temporal-api-key-metrics \
+    --from-literal=api_key="$API_KEY_METRICS" \
+    --namespace default \
+    --dry-run=client -o yaml | kubectl apply -f -
+echo "✅ Secret created"
+
+# Create mTLS secret for Temporal Cloud
+echo "🔑 Creating Temporal mTLS secret..."
+kubectl create secret generic temporal-mtls \
+    --from-file=client.pem=temporal-certs/client.pem \
+    --from-file=client.key=temporal-certs/client.key \
+    --namespace default \
+    --dry-run=client -o yaml | kubectl apply -f -
+echo "✅ mTLS secret created"
+
+# Install infra chart (temporal, prometheus, grafana)
 echo "📦 Installing infra chart..."
 helm install temporal helm/temporal \
     --namespace default \

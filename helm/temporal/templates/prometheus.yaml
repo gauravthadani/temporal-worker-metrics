@@ -56,7 +56,7 @@ spec:
           name: prometheus-config
       - name: api-key
         secret:
-          secretName: temporal-api-key
+          secretName: temporal-api-key-metrics
 ---
 apiVersion: v1
 kind: Service

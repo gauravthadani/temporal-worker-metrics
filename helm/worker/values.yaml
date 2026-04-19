@@ -2,4 +2,25 @@ image: worker
 tag: latest
 replicas: 2
 port: 8079
-buildID: ""
+
+temporal:
+  namespace: "gaurav-test.a2dd6"
+  mtls:
+    enabled: false
+    host: "gaurav-test.a2dd6.tmprl.cloud:7233"
+    secretName: temporal-mtls
+  apiKey:
+    enabled: true
+    host: "us-east-1.aws.api.temporal.io:7233"
+    secretName: temporal-api-key
+    secretKey: api_key
+
+keda:
+  minReplicas: 1
+  maxReplicas: 10
+  pollingInterval: 10
+  cooldownPeriod: 30
+  taskQueue: metrics
+  queueTypes: "workflow,activity"
+  targetQueueSize: "5"
+  activationTargetQueueSize: "0"

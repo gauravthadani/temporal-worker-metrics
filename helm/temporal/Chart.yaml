@@ -4,7 +4,3 @@ description: Simple Helm chart for Temporal worker with Prometheus and Grafana
 type: application
 version: 0.1.0
 appVersion: "1.0"
-dependencies:
-  - name: temporal-worker-controller
-    version: "0.24.1"
-    repository: oci://docker.io/temporalio

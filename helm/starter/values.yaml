@@ -2,3 +2,15 @@ image: starter
 tag: latest
 completions: 2
 parallelism: 2
+
+temporal:
+  namespace: "gaurav-test.a2dd6"
+  mtls:
+    enabled: false
+    host: "gaurav-test.a2dd6.tmprl.cloud:7233"
+    secretName: temporal-mtls
+  apiKey:
+    enabled: true
+    host: "us-east-1.aws.api.temporal.io:7233"
+    secretName: temporal-api-key
+    secretKey: api_key

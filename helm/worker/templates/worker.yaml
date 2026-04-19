@@ -1,34 +1,50 @@
-apiVersion: temporal.io/v1alpha1
-kind: TemporalWorkerDeployment
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: worker
 spec:
   replicas: {{ .Values.replicas }}
-  rollout:
-    strategy: Progressive
-    steps:
-      - rampPercentage: 10
-        pauseDuration: 5m
-      - rampPercentage: 50
-        pauseDuration: 10m
-  sunset: {}
-  workerOptions:
-    connectionRef:
-      name: local
-    temporalNamespace: default
-    {{- if .Values.buildID }}
-    unsafeCustomBuildID: {{ .Values.buildID }}
-    {{- end }}
+  selector:
+    matchLabels:
+      app: worker
   template:
+    metadata:
+      labels:
+        app: worker
     spec:
       containers:
       - name: worker
         image: {{ .Values.image }}:{{ .Values.tag }}
         imagePullPolicy: IfNotPresent
         args:
-        - "-target-host=temporal:7233"
+        - "-target-host={{ if .Values.temporal.apiKey.enabled }}{{ .Values.temporal.apiKey.host }}{{ else }}{{ .Values.temporal.mtls.host }}{{ end }}"
+        - "-namespace={{ .Values.temporal.namespace }}"
+        {{- if .Values.temporal.mtls.enabled }}
+        - "-tls-cert-path=/etc/temporal/tls/client.pem"
+        - "-tls-key-path=/etc/temporal/tls/client.key"
+        {{- end }}
+        {{- if .Values.temporal.apiKey.enabled }}
+        env:
+        - name: TEMPORAL_CLIENT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.temporal.apiKey.secretName }}
+              key: {{ .Values.temporal.apiKey.secretKey }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.port }}
+        {{- if .Values.temporal.mtls.enabled }}
+        volumeMounts:
+        - name: temporal-tls
+          mountPath: /etc/temporal/tls
+          readOnly: true
+        {{- end }}
+      {{- if .Values.temporal.mtls.enabled }}
+      volumes:
+      - name: temporal-tls
+        secret:
+          secretName: {{ .Values.temporal.mtls.secretName }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -36,7 +52,7 @@ metadata:
   name: worker
 spec:
   selector:
-    temporal.io/deployment-name: worker
+    app: worker
   ports:
   - port: {{ .Values.port }}
     targetPort: {{ .Values.port }}

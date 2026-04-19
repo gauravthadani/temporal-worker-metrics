@@ -1,0 +1,47 @@
+{{- if or .Values.temporal.mtls.enabled .Values.temporal.apiKey.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: temporal-auth
+spec:
+  secretTargetRef:
+  {{- if .Values.temporal.mtls.enabled }}
+  - parameter: cert
+    name: {{ .Values.temporal.mtls.secretName }}
+    key: client.pem
+  - parameter: key
+    name: {{ .Values.temporal.mtls.secretName }}
+    key: client.key
+  {{- end }}
+  {{- if .Values.temporal.apiKey.enabled }}
+  - parameter: apiKey
+    name: {{ .Values.temporal.apiKey.secretName }}
+    key: {{ .Values.temporal.apiKey.secretKey }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: worker
+spec:
+  scaleTargetRef:
+    name: worker
+    kind: Deployment
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
+  minReplicaCount: {{ .Values.keda.minReplicas }}
+  maxReplicaCount: {{ .Values.keda.maxReplicas }}
+  triggers:
+  - type: temporal
+    {{- if or .Values.temporal.mtls.enabled .Values.temporal.apiKey.enabled }}
+    authenticationRef:
+      name: temporal-auth
+    {{- end }}
+    metadata:
+      endpoint: {{ if .Values.temporal.apiKey.enabled }}{{ .Values.temporal.apiKey.host }}{{ else }}{{ .Values.temporal.mtls.host }}{{ end }}
+      namespace: {{ .Values.temporal.namespace }}
+      taskQueue: {{ .Values.keda.taskQueue }}
+      queueTypes: {{ .Values.keda.queueTypes }}
+      targetQueueSize: "{{ .Values.keda.targetQueueSize }}"
+      activationTargetQueueSize: "{{ .Values.keda.activationTargetQueueSize }}"
