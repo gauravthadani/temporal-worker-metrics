@@ -28,7 +28,6 @@ func Workflow(ctx workflow.Context) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("Metrics workflow started.")
 
-	//workflow.GetMetricsHandler(ctx).Gauge("my_test_gauge").Update(123.123)
 	workflow.GetMetricsHandler(ctx).
 		WithTags(map[string]string{
 			"workflow-id": workflow.GetInfo(ctx).WorkflowExecution.ID,
@@ -45,32 +44,8 @@ func Workflow(ctx workflow.Context) error {
 		logger.Error("Activity failed.", "Error", err)
 		return err
 	}
-	//err = workflow.ExecuteActivity(ctx, Activity, req).Get(ctx, nil)
-	//if err != nil {
-	//	logger.Error("Activity failed.", "Error", err)
-	//	return err
-	//}
-	//err = workflow.ExecuteActivity(ctx, Activity, req).Get(ctx, nil)
-	//if err != nil {
-	//	logger.Error("Activity failed.", "Error", err)
-	//	return err
-	//}
 
-	//for i := 0; i < 2; i++ {
-	//	req := &Request{
-	//		ReadFile:           true,
-	//		ScheduledTimeNanos: workflow.Now(ctx).UnixNano(),
-	//		//FileName:           "100kb.txt",
-	//FileName:           "4mb.txt",
-	//	}
-	//	err := workflow.ExecuteActivity(ctx, Activity, req).Get(ctx, nil)
-	//	if err != nil {
-	//		logger.Error("Activity failed.", "Error", err)
-	//		return err
-	//	}
-	//}
-
-	logger.Info("Metrics workflow completed.")
+	logger.Info("Metrics workflow completed. New")
 	return nil
 }
 

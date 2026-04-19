@@ -25,6 +25,7 @@ deploy:
         setValueTemplates:
           image: "{{.IMAGE_REPO_worker}}"
           tag: "{{.IMAGE_TAG_worker}}"
+          buildID: "{{.BUILD_ID}}"
 
 profiles:
   - name: starters

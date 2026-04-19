@@ -16,6 +16,9 @@ spec:
     connectionRef:
       name: local
     temporalNamespace: default
+    {{- if .Values.buildID }}
+    unsafeCustomBuildID: {{ .Values.buildID }}
+    {{- end }}
   template:
     spec:
       containers:
@@ -33,7 +36,7 @@ metadata:
   name: worker
 spec:
   selector:
-    app: worker
+    temporal.io/deployment-name: worker
   ports:
   - port: {{ .Values.port }}
     targetPort: {{ .Values.port }}

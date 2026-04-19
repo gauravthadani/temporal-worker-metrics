@@ -1,4 +1,5 @@
 image: worker
 tag: latest
-replicas: 1
+replicas: 2
 port: 8079
+buildID: ""
