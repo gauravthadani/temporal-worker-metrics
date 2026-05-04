@@ -1,6 +1,6 @@
 dependencies:
 - name: temporal-worker-controller
   repository: oci://docker.io/temporalio
-  version: 0.24.1
-digest: sha256:e71aabfcb0aef4fea51b78cb63a2d6f7602eb2a4da029aacd928ef9c1706e079
-generated: "2026-04-19T09:28:50.289466+10:00"
+  version: 0.26.0
+digest: sha256:c83a322208022b2793f1dd2b3073c6dbeefdb3ea2eefebd82baa5b88f99c71d1
+generated: "2026-05-04T10:26:36.414716-07:00"

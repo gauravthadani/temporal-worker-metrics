@@ -43,7 +43,7 @@ Access:
 ## Architecture
 
 ```
-TemporalWorkerDeployment
+WorkerDeployment
   └─ managed by temporal-worker-controller
        └─ creates/manages Deployment pods (versioned)
             └─ worker exposes :8079/metrics
