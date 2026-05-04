@@ -1,0 +1,119 @@
+# WorkerResourceTemplate: the controller creates one HPA per running worker version,
+# automatically wired to the correct versioned Deployment. Switch which block is
+# uncommented to change the scaling strategy.
+
+# --- OPTION 1: Backlog-based (recommended for I/O-bound workers) ---
+# Scales on temporal_backlog_count_by_version from Temporal Cloud metrics.
+# Reacts before pods are overwhelmed; directly measures whether workers are keeping up.
+# CPU included as a safety net — HPA picks whichever metric demands more replicas.
+# apiVersion: temporal.io/v1alpha1
+# kind: WorkerResourceTemplate
+# metadata:
+#   name: worker-hpa-backlog
+# spec:
+#   temporalWorkerDeploymentRef:
+#     name: worker
+#   template:
+#     apiVersion: autoscaling/v2
+#     kind: HorizontalPodAutoscaler
+#     spec:
+#       scaleTargetRef: {}
+#       minReplicas: {{ .Values.autoscaling.minReplicas }}
+#       maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+#       metrics:
+#         - type: External
+#           external:
+#             metric:
+#               name: temporal_backlog_count_by_version
+#               selector:
+#                 matchLabels:
+#                   task_type: "Activity"
+#             target:
+#               type: AverageValue
+#               averageValue: "10"
+#         - type: Resource
+#           resource:
+#             name: cpu
+#             target:
+#               type: Utilization
+#               averageUtilization: 80
+#       behavior:
+#         scaleDown:
+#           stabilizationWindowSeconds: {{ .Values.autoscaling.scaleDown.stabilizationWindowSeconds }}
+#           policies:
+#           - type: Pods
+#             value: {{ .Values.autoscaling.scaleDown.maxPodsPerPeriod }}
+#             periodSeconds: {{ .Values.autoscaling.scaleDown.periodSeconds }}
+#         scaleUp:
+#           stabilizationWindowSeconds: {{ .Values.autoscaling.scaleUp.stabilizationWindowSeconds }}
+
+# --- OPTION 2: CPU-based (for compute-heavy, CPU-bound workers) ---
+# Good when activities do encoding, compression, or heavy computation.
+# Lagging indicator — CPU spikes after load arrives, not before.
+#
+# apiVersion: temporal.io/v1alpha1
+# kind: WorkerResourceTemplate
+# metadata:
+#   name: worker-hpa-cpu
+# spec:
+#   temporalWorkerDeploymentRef:
+#     name: worker
+#   template:
+#     apiVersion: autoscaling/v2
+#     kind: HorizontalPodAutoscaler
+#     spec:
+#       scaleTargetRef: {}
+#       minReplicas: {{ .Values.autoscaling.minReplicas }}
+#       maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+#       metrics:
+#         - type: Resource
+#           resource:
+#             name: cpu
+#             target:
+#               type: Utilization
+#               averageUtilization: 70
+#       behavior:
+#         scaleDown:
+#           stabilizationWindowSeconds: {{ .Values.autoscaling.scaleDown.stabilizationWindowSeconds }}
+#           policies:
+#           - type: Pods
+#             value: {{ .Values.autoscaling.scaleDown.maxPodsPerPeriod }}
+#             periodSeconds: {{ .Values.autoscaling.scaleDown.periodSeconds }}
+#         scaleUp:
+#           stabilizationWindowSeconds: {{ .Values.autoscaling.scaleUp.stabilizationWindowSeconds }}
+
+# --- OPTION 3: Memory-based (rarely right for Temporal workers) ---
+# Only appropriate if activities hold large per-task in-memory state.
+# Most workers have a fixed memory footprint regardless of load — prefer
+# backlog or CPU instead.
+#
+apiVersion: temporal.io/v1alpha1
+kind: WorkerResourceTemplate
+metadata:
+  name: worker-hpa-memory
+spec:
+  temporalWorkerDeploymentRef:
+    name: worker
+  template:
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    spec:
+      scaleTargetRef: {}
+      minReplicas: {{ .Values.autoscaling.minReplicas }}
+      maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+      metrics:
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 80
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: {{ .Values.autoscaling.scaleDown.stabilizationWindowSeconds }}
+          policies:
+          - type: Pods
+            value: {{ .Values.autoscaling.scaleDown.maxPodsPerPeriod }}
+            periodSeconds: {{ .Values.autoscaling.scaleDown.periodSeconds }}
+        scaleUp:
+          stabilizationWindowSeconds: {{ .Values.autoscaling.scaleUp.stabilizationWindowSeconds }}

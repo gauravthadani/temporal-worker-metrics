@@ -21,6 +21,7 @@ spec:
     {{- end }}
   template:
     spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       containers:
       - name: worker
         image: {{ .Values.image }}:{{ .Values.tag }}
@@ -29,6 +30,12 @@ spec:
         - "-target-host=temporal:7233"
         ports:
         - containerPort: {{ .Values.port }}
+        resources:
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.resources.limits.memory }}
 ---
 apiVersion: v1
 kind: Service

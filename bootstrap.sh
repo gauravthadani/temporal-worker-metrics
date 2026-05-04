@@ -66,6 +66,11 @@ kubectl create secret generic temporal-api-key \
     --dry-run=client -o yaml | kubectl apply -f -
 echo "✅ Secret created"
 
+# Fetch helm chart dependencies (must be run from helm/temporal/)
+echo "📦 Fetching helm chart dependencies..."
+(cd helm/temporal && helm dependency build)
+echo "✅ Helm dependencies fetched"
+
 # Install infra chart (temporal, prometheus, grafana, temporal-worker-controller)
 echo "📦 Installing infra chart..."
 helm install temporal helm/temporal \

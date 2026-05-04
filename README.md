@@ -30,9 +30,10 @@ This project demonstrates how to run Temporal workers on Kubernetes with Prometh
 This will:
 1. Create a local kind cluster
 2. Create the Prometheus API key secret in k8s
-3. Build worker + starter images and deploy everything via Skaffold (including the temporal-worker-controller)
-4. Provision Grafana dashboards via Terraform
-5. Optionally launch workflow load
+3. Fetch Helm chart dependencies (`helm dependency build` from `helm/temporal/`)
+4. Build worker + starter images and deploy everything via Skaffold (including the temporal-worker-controller)
+5. Provision Grafana dashboards via Terraform
+6. Optionally launch workflow load
 
 Access:
 - **Grafana**: http://localhost:30030 (admin/admin)
@@ -52,6 +53,14 @@ TemporalWorkerDeployment
 The worker reads `TEMPORAL_WORKER_BUILD_ID` and `TEMPORAL_DEPLOYMENT_NAME` injected by the controller and enables worker versioning automatically. When running locally without the controller these env vars are absent and versioning is skipped.
 
 ## Development
+
+### Helm dependencies
+
+The `helm/temporal` chart depends on `temporal-worker-controller` via OCI. Run the build from inside that directory — running it from the project root will fail with a misleading file-size error:
+
+```bash
+cd helm/temporal && helm dependency build
+```
 
 ### Iterating with Skaffold
 

@@ -1,5 +1,24 @@
 image: worker
 tag: latest
-replicas: 2
+replicas: 1
 port: 8079
 buildID: ""
+
+terminationGracePeriodSeconds: 120
+
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 5
+  scaleDown:
+    stabilizationWindowSeconds: 120  # wait 2min of low load before scaling down
+    maxPodsPerPeriod: 1              # remove at most 1 pod at a time
+    periodSeconds: 60
+  scaleUp:
+    stabilizationWindowSeconds: 30   # wait 30s of high load before scaling up
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
