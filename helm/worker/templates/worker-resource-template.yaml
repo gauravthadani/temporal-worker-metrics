@@ -11,7 +11,7 @@
 # metadata:
 #   name: worker-hpa-backlog
 # spec:
-#   temporalWorkerDeploymentRef:
+#   workerDeploymentRef:
 #     name: worker
 #   template:
 #     apiVersion: autoscaling/v2
@@ -56,7 +56,7 @@
 # metadata:
 #   name: worker-hpa-cpu
 # spec:
-#   temporalWorkerDeploymentRef:
+#   workerDeploymentRef:
 #     name: worker
 #   template:
 #     apiVersion: autoscaling/v2
@@ -92,7 +92,7 @@ kind: WorkerResourceTemplate
 metadata:
   name: worker-hpa-memory
 spec:
-  temporalWorkerDeploymentRef:
+  workerDeploymentRef:
     name: worker
   template:
     apiVersion: autoscaling/v2

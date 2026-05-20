@@ -1,0 +1,47 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: temporal-worker-metrics-java
+
+build:
+  local:
+    push: false
+  tagPolicy:
+    gitCommit:
+      variant: AbbrevCommitSha
+  artifacts:
+    - image: worker-java
+      context: java
+      docker:
+        dockerfile: Dockerfile.worker
+
+deploy:
+  helm:
+    releases:
+      - name: worker-java
+        chartPath: helm/worker
+        valuesFiles:
+          - helm/worker/values.yaml
+        setValueTemplates:
+          image: "{{.IMAGE_REPO_worker_java}}"
+          tag: "{{.IMAGE_TAG_worker_java}}"
+          buildID: "{{.BUILD_ID}}"
+
+profiles:
+  - name: starters
+    build:
+      artifacts:
+        - image: starter-java
+          context: java
+          docker:
+            dockerfile: Dockerfile.starter
+    deploy:
+      helm:
+        releases:
+          - name: starter-java
+            chartPath: helm/starter
+            valuesFiles:
+              - helm/starter/values.yaml
+            setValueTemplates:
+              image: "{{.IMAGE_REPO_starter_java}}"
+              tag: "{{.IMAGE_TAG_starter_java}}"

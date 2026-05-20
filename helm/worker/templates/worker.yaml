@@ -8,9 +8,9 @@ spec:
     strategy: Progressive
     steps:
       - rampPercentage: 10
-        pauseDuration: 5m
-      - rampPercentage: 50
-        pauseDuration: 10m
+        pauseDuration: 1m
+      # - rampPercentage: 50
+      #   pauseDuration: 10m
   sunset: {}
   workerOptions:
     connectionRef:
@@ -28,14 +28,17 @@ spec:
         imagePullPolicy: IfNotPresent
         args:
         - "-target-host=temporal:7233"
+        env:
+        - name: TEMPORAL_ADDRESS
+          value: "temporal:7233"
+        - name: TEMPORAL_NAMESPACE
+          value: "default"
         ports:
         - containerPort: {{ .Values.port }}
+        {{- with .Values.resources }}
         resources:
-          requests:
-            memory: {{ .Values.resources.requests.memory }}
-            cpu: {{ .Values.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.resources.limits.memory }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
 ---
 apiVersion: v1
 kind: Service

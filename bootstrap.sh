@@ -3,6 +3,30 @@ set -e
 
 echo "🚀 Starting Temporal Worker Metrics Bootstrap"
 
+# Ask which language stack to deploy
+echo ""
+echo "Which worker stack would you like to deploy?"
+echo "  1) Go    (skaffold.yaml)"
+echo "  2) Java  (skaffold-java.yaml)"
+read -p "Choice [1/2]: " -n 1 -r LANG_CHOICE
+echo ""
+case "$LANG_CHOICE" in
+    1|g|G)
+        SKAFFOLD_FILE="skaffold.yaml"
+        LANG_LABEL="Go"
+        ;;
+    2|j|J)
+        SKAFFOLD_FILE="skaffold-java.yaml"
+        LANG_LABEL="Java"
+        ;;
+    *)
+        echo "❌ Invalid choice '$LANG_CHOICE'. Expected 1 or 2."
+        exit 1
+        ;;
+esac
+echo "✅ Selected $LANG_LABEL stack ($SKAFFOLD_FILE)"
+echo ""
+
 # Check if API key file exists
 API_KEY_FILE="temporal-certs/api_key_metrics"
 if [ ! -f "$API_KEY_FILE" ]; then
@@ -91,8 +115,8 @@ kubectl rollout status deployment/grafana -n default --timeout=120s
 echo "✅ Grafana is ready"
 
 # Deploy app with Skaffold (builds images, deploys temporal-worker-metrics chart)
-echo "⚙️  Deploying with Skaffold..."
-skaffold run
+echo "⚙️  Deploying $LANG_LABEL worker with Skaffold ($SKAFFOLD_FILE)..."
+skaffold run -f "$SKAFFOLD_FILE"
 echo "✅ Skaffold deployment complete"
 
 # Deploy Grafana dashboards with Terraform
@@ -118,12 +142,12 @@ echo "🚦 Should we launch starters? This will create workflow load."
 read -p "Launch starters? (y/n): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "🚀 Launching starters..."
-    skaffold run -p starters
+    echo "🚀 Launching $LANG_LABEL starters..."
+    skaffold run -f "$SKAFFOLD_FILE" -p starters
     echo "✅ Starters launched"
 else
     echo "⏸️  Starters not launched. You can manually start them later with:"
-    echo "   skaffold run -p starters"
+    echo "   skaffold run -f $SKAFFOLD_FILE -p starters"
 fi
 
 echo ""

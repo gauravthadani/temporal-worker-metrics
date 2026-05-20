@@ -16,9 +16,9 @@ autoscaling:
   scaleUp:
     stabilizationWindowSeconds: 30   # wait 30s of high load before scaling up
 
-resources:
-  requests:
-    memory: "128Mi"
-    cpu: "100m"
-  limits:
-    memory: "512Mi"
+# resources:
+#   requests:
+#     memory: "128Mi"
+#     cpu: "100m"
+#   limits:
+#     memory: "512Mi"
