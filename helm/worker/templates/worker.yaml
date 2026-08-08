@@ -27,10 +27,10 @@ spec:
         image: {{ .Values.image }}:{{ .Values.tag }}
         imagePullPolicy: IfNotPresent
         args:
-        - "-target-host=temporal:7233"
+        - "-target-host=temporal-proxy:8443"
         env:
         - name: TEMPORAL_ADDRESS
-          value: "temporal:7233"
+          value: "temporal-proxy:8443"
         - name: TEMPORAL_NAMESPACE
           value: "default"
         ports:

@@ -65,6 +65,8 @@ mkdir -p charts
     helm pull oci://quay.io/jetstack/charts/cert-manager --version 1.20.2 -d charts/
 [ -f charts/temporal-worker-controller-crds-0.26.0.tgz ] || \
     helm pull oci://docker.io/temporalio/temporal-worker-controller-crds --version 0.26.0 -d charts/
+[ -f charts/temporal-proxy-0.2.0.tgz ] || \
+    helm pull temporal-proxy --repo https://go.temporal.io/helm-charts --version 0.2.0 -d charts/
 
 # Install cert-manager
 echo "🔐 Installing cert-manager..."
@@ -113,6 +115,14 @@ echo "✅ Prometheus is ready"
 echo "⏳ Waiting for Grafana to be ready..."
 kubectl rollout status deployment/grafana -n default --timeout=120s
 echo "✅ Grafana is ready"
+
+# Install temporal-proxy
+echo "🔀 Installing temporal-proxy..."
+helm install temporal-proxy charts/temporal-proxy-0.2.0.tgz \
+    --namespace default \
+    -f helm/temporal-proxy-values.yaml \
+    --wait
+echo "✅ temporal-proxy installed"
 
 # Deploy app with Skaffold (builds images, deploys temporal-worker-metrics chart)
 echo "⚙️  Deploying $LANG_LABEL worker with Skaffold ($SKAFFOLD_FILE)..."

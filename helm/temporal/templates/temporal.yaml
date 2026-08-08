@@ -28,7 +28,7 @@ kind: Connection
 metadata:
   name: local
 spec:
-  hostPort: temporal:7233
+  hostPort: temporal-proxy:8443
 ---
 apiVersion: v1
 kind: Service

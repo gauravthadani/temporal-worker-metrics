@@ -45,7 +45,7 @@ func ParseClientOptionFlags(args []string) (client.Options, error) {
 
 	println("Hello")
 	println(*targetHost)
-	useTls := !(*targetHost == "localhost:7233" || *targetHost == "temporal:7233")
+	useTls := !(*targetHost == "localhost:7233" || *targetHost == "temporal:7233" || *targetHost == "temporal-proxy:8443")
 	if useTls {
 		opts = client.ConnectionOptions{TLS: &tls.Config{}}
 	}
