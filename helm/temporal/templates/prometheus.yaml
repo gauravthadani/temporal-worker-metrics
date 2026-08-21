@@ -9,6 +9,10 @@ data:
         scrape_interval: 1s
         static_configs:
           - targets: ['worker:8079']
+      - job_name: 'temporal-proxy'
+        scrape_interval: 5s
+        static_configs:
+          - targets: ['temporal-proxy-metrics:9090']
       - job_name: 'temporal-cloud'
         scrape_interval: 60s
         scrape_timeout: 30s

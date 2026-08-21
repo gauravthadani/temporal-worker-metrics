@@ -14,8 +14,8 @@ spec:
   sunset: {}
   workerOptions:
     connectionRef:
-      name: local
-    temporalNamespace: default
+      name: {{ .Values.connectionRef | default "proxy" }}
+    temporalNamespace: gaurav-test
     {{- if .Values.buildID }}
     unsafeCustomBuildID: {{ .Values.buildID }}
     {{- end }}
@@ -28,11 +28,6 @@ spec:
         imagePullPolicy: IfNotPresent
         args:
         - "-target-host=temporal-proxy:8443"
-        env:
-        - name: TEMPORAL_ADDRESS
-          value: "temporal-proxy:8443"
-        - name: TEMPORAL_NAMESPACE
-          value: "default"
         ports:
         - containerPort: {{ .Values.port }}
         {{- with .Values.resources }}

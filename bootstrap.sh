@@ -116,13 +116,31 @@ echo "⏳ Waiting for Grafana to be ready..."
 kubectl rollout status deployment/grafana -n default --timeout=120s
 echo "✅ Grafana is ready"
 
+# Create temporal-proxy API key secret (for cloud upstream)
+PROXY_API_KEY_FILE="temporal-certs/api_key"
+if [ ! -f "$PROXY_API_KEY_FILE" ]; then
+    echo "❌ Error: temporal-proxy API key file not found at $PROXY_API_KEY_FILE"
+    exit 1
+fi
+PROXY_API_KEY=$(cat "$PROXY_API_KEY_FILE")
+kubectl create secret generic temporal-proxy-api-key \
+    --from-literal=api_key="$PROXY_API_KEY" \
+    --namespace default \
+    --dry-run=client -o yaml | kubectl apply -f -
+echo "✅ temporal-proxy API key secret created"
+
 # Install temporal-proxy
 echo "🔀 Installing temporal-proxy..."
 helm install temporal-proxy charts/temporal-proxy-0.2.0.tgz \
     --namespace default \
-    -f helm/temporal-proxy-values.yaml \
+    -f helm/proxy/values.yaml \
     --wait
 echo "✅ temporal-proxy installed"
+
+# Install proxy Connection CR
+echo "🔗 Installing proxy Connection CR..."
+helm install proxy helm/proxy --namespace default
+echo "✅ proxy Connection installed"
 
 # Deploy app with Skaffold (builds images, deploys temporal-worker-metrics chart)
 echo "⚙️  Deploying $LANG_LABEL worker with Skaffold ($SKAFFOLD_FILE)..."

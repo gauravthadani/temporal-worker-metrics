@@ -1,8 +1,10 @@
 image: worker
 tag: latest
-replicas: 1
+replicas: 4
 port: 8079
 buildID: ""
+
+# connectionRef: local
 
 terminationGracePeriodSeconds: 120
 

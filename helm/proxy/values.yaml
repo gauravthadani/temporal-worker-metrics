@@ -1,0 +1,40 @@
+image:
+  tag: v0.4.1
+
+livenessProbe:
+  httpGet: null
+  tcpSocket:
+    port: http
+readinessProbe:
+  httpGet: null
+  tcpSocket:
+    port: http
+
+config:
+  routing:
+    default: local
+    rules:
+      - upstream: cloud
+        match:
+          namespace: gaurav-test
+  upstreams:
+    - name: local
+      hostPort: temporal:7233
+    - name: cloud
+      hostPort: ca-central-1.aws.api.temporal.io:7233
+      tls: {}
+      namespaces:
+        rules:
+          suffix: .a2dd6
+      credentials:
+        static:
+          apiKey:
+            secretKeyRef:
+              name: temporal-proxy-api-key
+              key: api_key
+  encryption:
+    enabled: true
+    default:
+      uri: testing://e4t-WGqNmFPr8lJ2OYYsDBHzQLZCezmnFGT0hFdZHHM=
+      duration: 1h
+      renewBefore: 15m

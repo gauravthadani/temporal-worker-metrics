@@ -38,8 +38,8 @@ func main() {
 		DeploymentOptions: worker.DeploymentOptions{
 			UseVersioning: true,
 			Version: worker.WorkerDeploymentVersion{
-				DeploymentName: os.Getenv("TEMPORAL_DEPLOYMENT_NAME"),
-				BuildID:        os.Getenv("TEMPORAL_WORKER_BUILD_ID"),
+				DeploymentName: "bravo",
+				BuildID:        "4",
 			},
 			DefaultVersioningBehavior: workflow.VersioningBehaviorPinned,
 		},

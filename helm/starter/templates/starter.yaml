@@ -20,4 +20,4 @@ spec:
         - name: TEMPORAL_ADDRESS
           value: "temporal-proxy:8443"
         - name: TEMPORAL_NAMESPACE
-          value: "default"
+          value: "gaurav-test"

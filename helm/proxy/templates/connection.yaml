@@ -1,0 +1,6 @@
+apiVersion: temporal.io/v1alpha1
+kind: Connection
+metadata:
+  name: proxy
+spec:
+  hostPort: temporal-proxy:8443

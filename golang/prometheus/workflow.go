@@ -45,6 +45,13 @@ func Workflow(ctx workflow.Context) error {
 		return err
 	}
 
+	err = workflow.Await(ctx, func() bool {
+		return false
+	})
+	if err != nil {
+		return err
+	}
+
 	logger.Info("Metrics workflow completed. New")
 	return nil
 }
