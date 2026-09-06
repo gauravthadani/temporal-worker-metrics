@@ -61,14 +61,14 @@ echo "✅ Registry connected to kind network"
 
 # Pre-pull helm charts if not cached
 mkdir -p charts
-[ -f charts/cert-manager-1.20.2.tgz ] || \
-    helm pull oci://quay.io/jetstack/charts/cert-manager --version 1.20.2 -d charts/
-[ -f charts/temporal-worker-controller-crds-0.26.0.tgz ] || \
-    helm pull oci://docker.io/temporalio/temporal-worker-controller-crds --version 0.26.0 -d charts/
+[ -f charts/cert-manager-1.21.1.tgz ] || \
+    helm pull oci://quay.io/jetstack/charts/cert-manager --version 1.21.1 -d charts/
+[ -f charts/temporal-worker-controller-crds-0.29.1.tgz ] || \
+    helm pull oci://docker.io/temporalio/temporal-worker-controller-crds --version 0.29.1 -d charts/
 
 # Install cert-manager
 echo "🔐 Installing cert-manager..."
-helm install cert-manager charts/cert-manager-1.20.2.tgz \
+helm install cert-manager charts/cert-manager-1.21.1.tgz \
     --namespace cert-manager \
     --create-namespace \
     --set crds.enabled=true \
@@ -78,7 +78,7 @@ echo "✅ cert-manager installed"
 # Install temporal-worker-controller CRDs
 echo "⚙️  Installing temporal-worker-controller CRDs..."
 helm install temporal-worker-controller-crds \
-    charts/temporal-worker-controller-crds-0.26.0.tgz \
+    charts/temporal-worker-controller-crds-0.29.1.tgz \
     --namespace default
 echo "✅ temporal-worker-controller CRDs installed"
 

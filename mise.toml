@@ -1,0 +1,8 @@
+[tools]
+go = "1.25.6"
+java = "temurin-17"
+terraform = "1.16.0"
+helm = "4.2.4"
+kubectl = "1.37.0"
+skaffold = "2.24.0"
+kind = "0.33.0"

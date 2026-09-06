@@ -12,13 +12,11 @@ This project demonstrates how to run Temporal workers on Kubernetes with Prometh
 
 ## Prerequisites
 
-- [Go 1.23+](https://go.dev)
 - [Docker](https://docs.docker.com/get-docker/)
-- [kind](https://kind.sigs.k8s.io/)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [Helm v3](https://helm.sh/)
-- [Skaffold](https://skaffold.dev/)
-- [Terraform](https://www.terraform.io/)
+- [mise](https://mise.jdx.dev/) — installs the pinned versions of Go, Java, Terraform, Helm, kubectl, Skaffold, and kind from `mise.toml`:
+  ```bash
+  mise install
+  ```
 - Temporal Cloud metrics API key in `temporal-certs/api_key_metrics`
 
 ## Quick Start
